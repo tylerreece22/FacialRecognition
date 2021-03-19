@@ -5,6 +5,11 @@
 ### Larger Data ###
 *.mov
 *.mp4
+*.pickle
+face_enc
+*.npz
+*.jpg
+*.png
 
 ### IntelliJ ###
 .idea
