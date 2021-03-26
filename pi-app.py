@@ -9,6 +9,13 @@ model920 = model_920()
 
 haar = cv2.CascadeClassifier('./data/haarcascade_frontalface_default.xml')
 
+from gpiozero import LED
+from gpiozero import MotionSensor
+
+led = LED(17)
+pir = MotionSensor(4)
+led.off()
+
 
 def face_detect(image):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -23,27 +30,36 @@ def face_detect(image):
     return image
 
 
-cap = cv2.VideoCapture(0)
-anchor_image = Image.open('./data/me.jpg')
+while True:
+    pir.wait_for_motion()
+    print('Motion detected')
+    led.on()
 
-frame_limit = 10
-frames = 0
-while frames < frame_limit:
-    ret, frame = cap.read()
-    if ret == False:
-        print(f"Printed {frames} frames")
-        break
+    cap = cv2.VideoCapture(0)
+    anchor_image = Image.open('./data/me.jpg')
 
-    face_verification = FaceVerification(np.array(anchor_image), frame)
+    print('Ready!')
+    frame_limit = 10
+    frames = 0
+    while frames < frame_limit:
+        ret, frame = cap.read()
+        if ret == False:
+            print(f"Printed {frames} frames")
+            break
 
-    if face_verification.verify_face():
-        print('you may enter')
-        break
+        face_verification = FaceVerification(np.array(anchor_image), frame)
+        print('Processed frame')
 
-    # cv2.imshow('object_detect',np.asarray(frame))
-    if cv2.waitKey(40) == 27:  # Every 40 milliseconds check if escape key is pressed
-        break
-    frames += 1
+        if face_verification.verify_face():
+            print('you may enter')
+            break
 
-cv2.destroyAllWindows()
-cap.release()
+        # cv2.imshow('object_detect',np.asarray(frame))
+        if cv2.waitKey(40) == 27:  # Every 40 milliseconds check if escape key is pressed
+            break
+        frames += 1
+        
+
+    cv2.destroyAllWindows()
+    cap.release()
+    led.off()
